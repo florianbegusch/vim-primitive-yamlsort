@@ -26,12 +26,14 @@
 function PrimitiveYamlSort()
   py3 << EOF
 
-start = vim.current.buffer.mark('<')[0]
-end = vim.current.buffer.mark('>')[0]
+# select line before and after to have regex
+# pattern match first and last element properly
+start = vim.current.buffer.mark('<')[0] - 1
+if start < 0: start = 0
+end = vim.current.buffer.mark('>')[0] + 1
 
 buffer_range = vim.current.buffer[start:end]
 line_count_initial = len(buffer_range)
-
 
 content = '\n'.join(buffer_range)
 
@@ -42,6 +44,8 @@ import re
 yml_array_elem_regex = re.compile("(?=^  -)", (re.S|re.M))
 
 yaml_array = yml_array_elem_regex.split(content)
+yaml_array[len(yaml_array)-1], line_after_select = \
+  yaml_array[len(yaml_array)-1].rsplit('\n', 1)
 
 for index, element in enumerate(yaml_array):
     yaml_array[index] = element.replace('\n', '')
@@ -64,10 +68,8 @@ vim.command(sort_command)
 buffer_range = vim.current.buffer[start:end-line_count_after_hokuspokus+1]
 content = '\n'.join(buffer_range)
 yaml_array = content.splitlines()
-yaml_array.append('')
 if not yaml_array[0]:
   del yaml_array[0]
-yaml_array.append('')
 
 
 # --------------------------
@@ -86,10 +88,15 @@ for index, element in enumerate(yaml_array):
     else:
         yaml_array_new.append(element)
 
-
+# TODO maybe clean this up
+#
+# This inserts the line after the selection
+# which had to be added to the selection in
+# order for the regex pattern to match.
+#
+yaml_array_new.append(line_after_select)
 
 # replace buffer, undo hokuspokus
-# TODO this adds an empty line at the top and removes a line at the bottom
 vim.current.buffer[start:end-line_count_after_hokuspokus+1] = yaml_array_new
 
 # --------------------------
