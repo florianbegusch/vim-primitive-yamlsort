@@ -41,7 +41,10 @@ content = '\n'.join(buffer_range)
 # regex hokuspokus
 import re
 
-yml_array_elem_regex = re.compile("(?=^  -)", (re.S|re.M))
+
+number_of_spaces_first_indent = len(vim.current.buffer[start].split('-', 1)[0])
+yml_array_elem_regex = \
+        re.compile("(?=^" + " " * number_of_spaces_first_indent +  "-)", (re.S|re.M))
 
 yaml_array = yml_array_elem_regex.split(content)
 yaml_array[len(yaml_array)-1], line_after_select = \
@@ -76,7 +79,8 @@ if not yaml_array[0]:
 # undo regex hokuspokus
 
 
-yml_sub_elem_regex = re.compile("(?=\s{4,})", (re.S|re.M))
+yml_sub_elem_regex = \
+        re.compile("(?=\s{" + str(2 + number_of_spaces_first_indent) + ",})", (re.S|re.M))
 
 yaml_array_new = []
 for index, element in enumerate(yaml_array):
