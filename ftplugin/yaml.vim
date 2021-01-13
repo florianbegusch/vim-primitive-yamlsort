@@ -63,7 +63,7 @@ vim.current.buffer[start:end] = yaml_array
 
 
 # sort hokuspokused selection
-sort_command = f'{start},{end-line_count_after_hokuspokus+1}sort'
+sort_command = f'{start+1},{end-line_count_after_hokuspokus+1}sort'
 vim.command(sort_command)
 
 
